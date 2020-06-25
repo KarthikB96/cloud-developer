@@ -13,6 +13,26 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
+  app.get("/filteredimage",async (req,res)=>{
+      const url = req.query.image_url;
+
+      if(!url){
+        res.status(400).send({
+          message:"Required Image URL or URL is malformed"
+        });
+      }
+
+      try{
+          const filteredImage = await filterImageFromURL(url);
+          res.status(200).sendFile(filteredImage,()=>{
+            deleteLocalFiles([filteredImage]);
+          });
+      }
+      catch(error){
+        console.log("Error in URL");
+        res.status(422).send("Unable to process Image");
+      }
+  });
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
